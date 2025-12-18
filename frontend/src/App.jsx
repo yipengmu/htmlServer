@@ -121,9 +121,18 @@ function App() {
           <h1 className="text-3xl md:text-4xl font-bold text-indigo-800 mb-2">
             现代化HTML托管平台
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             基于AI提示词快速生成美观的HTML网站并一键部署
           </p>
+          <div className="max-w-2xl mx-auto bg-blue-50 rounded-lg p-4 text-sm text-gray-700">
+            <p className="font-medium mb-2">使用说明：</p>
+            <ul className="list-disc list-inside text-left space-y-1">
+              <li>在左侧输入框中描述您想要的网站类型和内容</li>
+              <li>点击"生成HTML"按钮，AI将根据您的描述生成网站</li>
+              <li>预览生成的网站，满意后可自定义访问路径并部署</li>
+              <li>部署后的网站可通过指定路径访问</li>
+            </ul>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
