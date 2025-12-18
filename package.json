@@ -1,0 +1,44 @@
+{
+  "name": "htmlserver",
+  "version": "1.0.0",
+  "description": "A modern HTML hosting platform based on Express + React + Tailwind CSS",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node backend/app.js",
+    "dev": "nodemon backend/app.js",
+    "build": "cd frontend && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yipengmu/htmlServer.git"
+  },
+  "keywords": [
+    "html",
+    "hosting",
+    "express",
+    "react",
+    "tailwindcss"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yipengmu/htmlServer/issues"
+  },
+  "homepage": "https://github.com/yipengmu/htmlServer#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "nodemon": "^2.0.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18"
+  }
+}
