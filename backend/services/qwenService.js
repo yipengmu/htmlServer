@@ -11,7 +11,7 @@ class QwenService {
       accessKeyId: this.accessKeyId,
       accessKeySecret: this.accessKeySecret,
       endpoint: 'https://dashscope.aliyuncs.com/api/',
-      apiVersion: '2023-03-30'
+      apiVersion: '2024-03-30'
     });
     
     console.log('QwenService initialized with accessKeyId:', this.accessKeyId ? 'SET' : 'NOT SET');
@@ -25,7 +25,7 @@ class QwenService {
   async generateText(prompt) {
     try {
       const params = {
-        "model": "qwen-coder",
+        "model": "qwen-coder-turbo",
         "input": {
           "messages": [
             {
@@ -160,7 +160,7 @@ class QwenService {
 请确保需求文档详细且具体，以便后续用于生成HTML代码。`;
 
       const params = {
-        "model": "qwen-plus",
+        "model": "qwen-coder-turbo",
         "input": {
           "messages": [
             {
