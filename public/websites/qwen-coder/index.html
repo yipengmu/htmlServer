@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-white text-gray-900">
+    <!-- 导航栏 -->
+    <nav class="bg-blue-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-white font-bold text-lg">仓库管理系统</a>
+            <ul class="flex space-x-4">
+                <li><a href="#" class="text-gray-300 hover:text-white">主页</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white">库存管理</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white">订单管理</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white">退货处理</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white">报告</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white">设置</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主页内容 -->
+    <main class="container mx-auto p-4 mt-8">
+        <section class="mb-8">
+            <h1 class="text-3xl font-bold mb-4">系统概览</h1>
+            <p class="text-gray-700">欢迎使用仓库管理系统。本系统旨在帮助您更高效地管理库存、订单、退货以及优化存储空间。</p>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">快速链接</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="#" class="bg-white shadow-md rounded-lg p-6 text-center hover:bg-blue-50">
+                    <h3 class="text-xl font-semibold mb-2">库存管理</h3>
+                    <p class="text-gray-600">管理您的库存，包括入库、出库和库存查询。</p>
+                </a>
+                <a href="#" class="bg-white shadow-md rounded-lg p-6 text-center hover:bg-blue-50">
+                    <h3 class="text-xl font-semibold mb-2">订单管理</h3>
+                    <p class="text-gray-600">处理订单，从接收、处理到发货确认。</p>
+                </a>
+                <a href="#" class="bg-white shadow-md rounded-lg p-6 text-center hover:bg-blue-50">
+                    <h3 class="text-xl font-semibold mb-2">退货处理</h3>
+                    <p class="text-gray-600">接收、检查并处理退货请求。</p>
+                </a>
+                <a href="#" class="bg-white shadow-md rounded-lg p-6 text-center hover:bg-blue-50">
+                    <h3 class="text-xl font-semibold mb-2">报告</h3>
+                    <p class="text-gray-600">生成并导出库存水平、订单处理速度等报告。</p>
+                </a>
+                <a href="#" class="bg-white shadow-md rounded-lg p-6 text-center hover:bg-blue-50">
+                    <h3 class="text-xl font-semibold mb-2">设置</h3>
+                    <p class="text-gray-600">配置系统参数和用户权限。</p>
+                </a>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold mb-4">最新通知</h2>
+            <ul class="space-y-4">
+                <li class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-2">系统更新通知</h3>
+                    <p class="text-gray-700">我们的系统已更新至最新版本，带来更好的性能和更多的功能。</p>
+                </li>
+                <li class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-2">安全提醒</h3>
+                    <p class="text-gray-700">请注意保护您的账户信息安全，定期更改密码。</p>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-blue-800 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2023 仓库管理系统. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

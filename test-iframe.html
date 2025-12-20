@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFrame测试</title>
+</head>
+<body>
+    <h1>IFrame内容测试</h1>
+    
+    <iframe id="testFrame" width="100%" height="400px" sandbox="allow-scripts allow-same-origin"></iframe>
+    
+    <script>
+        // 测试HTML内容
+        const testHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-indigo-600">测试网站</div>
+            <div class="flex space-x-4">
+                <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2">首页</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2">产品</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2">联系</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">测试页面</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">这是一个测试页面，用于验证iframe是否能正确显示内容。</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">功能一</h2>
+                <p class="text-gray-600 mb-4">这是第一个功能的描述。</p>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">了解更多</button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">功能二</h2>
+                <p class="text-gray-600 mb-4">这是第二个功能的描述。</p>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">了解更多</button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">功能三</h2>
+                <p class="text-gray-600 mb-4">这是第三个功能的描述。</p>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">了解更多</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600">&copy; 2023 测试网站. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>`;
+
+        // 更新iframe内容
+        const iframe = document.getElementById('testFrame');
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <base target="_blank">
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body>
+                ${testHtml}
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
+    </script>
+</body>
+</html>

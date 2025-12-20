@@ -62,10 +62,10 @@ const generateHTMLFromPrompt = async (prompt) => {
     // 第二步：根据需求文档生成HTML代码
     const htmlContent = await qwenService.generateHTMLFromRequirement(requirementDoc);
     
-    // 提取HTML代码（去除可能的markdown包装）
+    // 提取HTML代码（去除可能的代码包装）
     let cleanHtml = htmlContent;
     
-    // 如果返回的内容包含markdown代码块，提取其中的HTML
+    // 如果返回的内容包含代码块，提取其中的HTML
     if (htmlContent.includes('```')) {
       const match = htmlContent.match(/```(?:html)?([\s\S]*?)```/);
       if (match && match[1]) {
@@ -97,7 +97,103 @@ const generateHTMLFromPrompt = async (prompt) => {
   }
 };
 
-// 生成HTML接口
+// 生成HTML内容的函数（使用Qwen大模型，支持流式输出）
+const generateHTMLFromPromptStream = async (prompt, onProgress) => {
+  try {
+    // 发送初始进度
+    if (onProgress) {
+      onProgress({ type: 'start', message: '开始处理提示词...' });
+    }
+    
+    // 第一步：将用户提示词转换为详细需求文档
+    if (onProgress) {
+      onProgress({ type: 'step', message: '正在生成需求文档...' });
+    }
+    const requirementDoc = await qwenService.generateRequirementDoc(prompt);
+    
+    // 第二步：根据需求文档生成HTML代码
+    if (onProgress) {
+      onProgress({ type: 'step', message: '正在生成HTML代码...' });
+    }
+    const htmlContent = await qwenService.generateHTMLFromRequirement(requirementDoc);
+    
+    // 提取HTML代码（去除可能的代码包装）
+    let cleanHtml = htmlContent;
+    
+    // 如果返回的内容包含代码块，提取其中的HTML
+    if (htmlContent.includes('```')) {
+      const match = htmlContent.match(/```(?:html)?([\s\S]*?)```/);
+      if (match && match[1]) {
+        cleanHtml = match[1].trim();
+      }
+    }
+    
+    return cleanHtml;
+  } catch (error) {
+    console.error('Qwen API调用失败，使用默认模板:', error);
+    
+    // 如果API调用失败，回退到默认模板
+    return `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${prompt}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="max-w-4xl mx-auto p-8">
+        <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">${prompt}</h1>
+        <p class="text-center text-gray-600">这是一个根据您的提示词生成的网站。</p>
+    </div>
+</body>
+</html>`;
+  }
+};
+
+// 生成HTML接口（支持流式响应）
+router.post('/generate-stream', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+    
+    // 设置响应头以支持流式传输
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+    
+    // 进度回调函数
+    const onProgress = (data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+    
+    try {
+      // 生成HTML内容
+      const htmlContent = await generateHTMLFromPromptStream(prompt, onProgress);
+      
+      // 发送最终结果
+      onProgress({ type: 'result', html: htmlContent });
+      
+      // 结束响应
+      res.write('data: {"type": "end"}\n\n');
+      res.end();
+    } catch (error) {
+      console.error('Generate HTML error:', error);
+      onProgress({ type: 'error', message: '生成HTML时发生错误: ' + error.message });
+      res.end();
+    }
+  } catch (error) {
+    console.error('Generate HTML error:', error);
+    res.status(500).json({ error: 'Failed to generate HTML' });
+  }
+});
+
+// 生成HTML接口（原有同步接口保持不变）
 router.post('/generate', async (req, res) => {
   try {
     const { prompt } = req.body;
