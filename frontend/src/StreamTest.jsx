@@ -25,6 +25,11 @@ const StreamTest = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
+      // 检查response.body是否存在
+      if (!response.body) {
+        throw new Error('ReadableStream not supported in this browser');
+      }
+      
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       

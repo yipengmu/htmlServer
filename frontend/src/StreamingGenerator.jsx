@@ -10,8 +10,76 @@ const StreamingGenerator = () => {
   const [deploymentDescription, setDeploymentDescription] = useState('');
   const [deploymentSuccess, setDeploymentSuccess] = useState(null);
   const [showPreview, setShowPreview] = useState(true);
+  const [models, setModels] = useState([]);
+  const [currentModel, setCurrentModel] = useState(null);
+  const [selectedModel, setSelectedModel] = useState('');
   const iframeRef = useRef(null);
   const stepsContainerRef = useRef(null);
+
+  // 获取可用模型列表
+  const fetchModels = async () => {
+    try {
+      const response = await fetch('/api/websites/models/available');
+      const data = await response.json();
+      if (data.success) {
+        setModels(data.models);
+      }
+    } catch (error) {
+      console.error('获取模型列表失败:', error);
+    }
+  };
+
+  // 获取当前模型信息
+  const fetchCurrentModel = async () => {
+    try {
+      const response = await fetch('/api/websites/models/current');
+      const data = await response.json();
+      if (data.success) {
+        setCurrentModel(data.model);
+        setSelectedModel(data.model.id);
+      }
+    } catch (error) {
+      console.error('获取当前模型失败:', error);
+    }
+  };
+
+  // 切换模型
+  const switchModel = async (provider) => {
+    try {
+      const response = await fetch('/api/websites/models/switch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ provider }),
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setGenerationSteps(prev => [...prev, { 
+          step: '模型切换', 
+          content: data.message, 
+          timestamp: new Date().toLocaleTimeString() 
+        }]);
+        fetchCurrentModel(); // 更新当前模型显示
+      } else {
+        setGenerationSteps(prev => [...prev, { 
+          step: '模型切换失败', 
+          content: data.message, 
+          timestamp: new Date().toLocaleTimeString(),
+          error: true 
+        }]);
+      }
+    } catch (error) {
+      console.error('切换模型失败:', error);
+      setGenerationSteps(prev => [...prev, { 
+        step: '模型切换错误', 
+        content: `切换模型失败: ${error.message}`, 
+        timestamp: new Date().toLocaleTimeString(),
+        error: true 
+      }]);
+    }
+  };
 
   // 更新iframe内容
   const updateIframeContent = () => {
@@ -50,7 +118,91 @@ const StreamingGenerator = () => {
     }
   };
 
-  // 生成HTML
+  // 流式生成HTML
+  const streamGenerateHTML = async () => {
+    if (!prompt.trim()) {
+      alert('请输入提示词');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedHtml('');
+    setGenerationSteps([]);
+    
+    try {
+      const response = await fetch('/api/websites/generate-stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // 检查response.body是否存在
+      if (!response.body) {
+        throw new Error('ReadableStream not supported in this browser');
+      }
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      
+      let buffer = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          setGenerationSteps(prev => [...prev, { 
+            step: '流已完成', 
+            content: '生成完成', 
+            timestamp: new Date().toLocaleTimeString(),
+            type: 'info'
+          }]);
+          break;
+        }
+        
+        buffer += decoder.decode(value, { stream: true });
+        
+        // 处理完整的事件
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop(); // 保留不完整的最后一行
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              setGenerationSteps(prev => [...prev, { 
+                ...data,
+                timestamp: new Date().toLocaleTimeString()
+              }]);
+              
+              // 如果是成功消息，更新HTML内容
+              if (data.step === 'complete' && data.content) {
+                setGeneratedHtml(data.content);
+              }
+            } catch (e) {
+              console.error('解析数据错误:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('流式生成错误:', error);
+      setGenerationSteps(prev => [...prev, { 
+        step: '错误', 
+        content: `生成失败: ${error.message}`, 
+        timestamp: new Date().toLocaleTimeString(),
+        error: true 
+      }]);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 生成HTML (普通方式 - 保持原有功能)
   const generateHTML = async () => {
     if (!prompt.trim()) {
       alert('请输入提示词');
@@ -166,12 +318,47 @@ const StreamingGenerator = () => {
     scrollToLatestStep();
   }, [generationSteps]);
 
+  // 初始化模型信息
+  useEffect(() => {
+    fetchModels();
+    fetchCurrentModel();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
       {/* 左侧：生成器和步骤显示 */}
       <div className="space-y-4">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">AI网站生成器</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">AI网站生成器</h2>
+            {/* 模型选择下拉菜单 */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">当前模型:</span>
+              <select
+                value={selectedModel}
+                onChange={(e) => {
+                  setSelectedModel(e.target.value);
+                  switchModel(e.target.value);
+                }}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              >
+                {models
+                  .filter(model => model.hasApiKey) // 只显示有API密钥的模型
+                  .map(model => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.provider})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+          
+          {currentModel && (
+            <div className="mb-3 p-2 bg-blue-50 rounded text-sm">
+              <span className="font-medium">{currentModel.name}</span> 
+              <span className="text-gray-600 ml-2">({currentModel.provider})</span>
+            </div>
+          )}
           
           <div className="space-y-4">
             <div>
@@ -187,13 +374,23 @@ const StreamingGenerator = () => {
               />
             </div>
             
-            <button
-              onClick={generateHTML}
-              disabled={isGenerating}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isGenerating ? '生成中...' : '生成网站'}
-            </button>
+            <div className="flex space-x-3">
+              <button
+                onClick={generateHTML}
+                disabled={isGenerating}
+                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                {isGenerating ? '生成中...' : '普通生成'}
+              </button>
+              
+              <button
+                onClick={streamGenerateHTML}
+                disabled={isGenerating}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                {isGenerating ? '生成中...' : '流式生成'}
+              </button>
+            </div>
             
             {isGenerating && (
               <div className="flex items-center justify-center space-x-2 text-indigo-600">
@@ -282,11 +479,14 @@ const StreamingGenerator = () => {
                   <div 
                     key={index} 
                     className={`p-2 rounded text-sm ${
-                      step.error ? 'bg-red-100 text-red-800' : 'bg-blue-50 text-blue-800'
+                      step.error ? 'bg-red-100 text-red-800' : 
+                      step.type === 'success' ? 'bg-green-100 text-green-800' :
+                      step.type === 'info' ? 'bg-blue-50 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}
                   >
                     <div className="font-medium">{step.step} <span className="text-xs text-gray-500">({step.timestamp})</span></div>
-                    <div>{step.content}</div>
+                    <div>{step.content || step.message}</div>
                   </div>
                 ))}
               </div>

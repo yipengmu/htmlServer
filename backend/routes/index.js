@@ -12,4 +12,9 @@ router.get('/', (req, res) => {
   res.json({ message: 'Welcome to HTML Server API' });
 });
 
+// 健康检查路由
+router.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'HTML Server is running' });
+});
+
 module.exports = router;

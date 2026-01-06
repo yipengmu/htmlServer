@@ -5,6 +5,7 @@
 ## 功能特性
 
 - **AI驱动的网站生成**：使用Qwen大模型根据自然语言提示生成高质量的HTML网站
+- **多模型支持**：支持多种主流AI模型（通义千问、豆包、智谱AI等）的切换
 - **实时预览**：生成过程中提供实时预览功能
 - **多网站管理**：支持创建和管理多个独立的网站
 - **自定义部署路径**：支持为网站指定自定义URL路径
@@ -21,7 +22,8 @@ backend/
 ├── routes/
 │   └── websites.js     # 网站生成和管理API路由
 └── services/
-    └── qwenService.js  # Qwen API服务封装
+    ├── qwenService.js  # 统一AI服务接口
+    └── modelManager.js # 多模型管理器
 ```
 
 ### 前端结构
@@ -46,12 +48,24 @@ public/
     └── ...
 ```
 
+## 支持的AI模型
+
+- **通义千问 (Qwen)** - 阿里巴巴
+- **豆包 (Doubao)** - 字节跳动
+- **智谱AI (Zhipu AI)** - 智谱AI
+
 ## API接口
 
 ### 生成相关
 
 - `POST /api/websites/generate` - 根据提示词生成HTML
 - `POST /api/websites/deploy` - 部署网站到独立文件夹
+
+### 模型管理
+
+- `GET /api/websites/models/available` - 获取可用模型列表
+- `GET /api/websites/models/current` - 获取当前模型信息
+- `POST /api/websites/models/switch` - 切换AI模型
 
 ### 网站管理
 
@@ -74,6 +88,8 @@ public/
 PORT=3001
 NODE_ENV=development
 QWEN_API_KEY=your_dashscope_api_key_here
+DOUBAO_API_KEY=your_doubao_api_key_here
+ZHIPU_API_KEY=your_zhipu_api_key_here
 ```
 
 ## 运行项目
@@ -98,7 +114,7 @@ QWEN_API_KEY=your_dashscope_api_key_here
 
 - **后端**: Node.js, Express
 - **前端**: React, Tailwind CSS
-- **AI服务**: 阿里云Qwen大模型
+- **AI服务**: 阿里云Qwen、字节跳动Doubao、智谱AI等大模型
 - **部署**: 静态文件服务
 
 ## 安全说明
