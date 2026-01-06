@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.8.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
