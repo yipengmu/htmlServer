@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
@@ -20,10 +20,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/dist/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=0"
-      }
+      "dest": "/index.html"
     }
   ]
 }
